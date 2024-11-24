@@ -1,0 +1,24 @@
+mongodb-user: 'admin'
+mongodb-passwd: '114514'
+mongodb-host: 'localhost'
+mongodb-port: 27018
+
+mongodb-db: test
+mongodb-collection : imgs
+mongodb-error-collection: errors
+
+milvusdb-host: 'localhost'
+milvusdb-port: 19530
+milvusdb-db: test
+milvusdb-collection: imgs
+
+# Needs to be consistent with Nginx configuration
+folders:
+  - name: test
+    path: /xxx/test
+  - name: test2
+    path: /xxx/test2
+
+
+deepdanbooru-model-path: /xxx/model-resnet_custom_v3.h5
+deepdanbooru-tags-path: /xxx/tags.txt
