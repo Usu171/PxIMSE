@@ -50,7 +50,7 @@ def import_imgs(config, operation, mongodb, *args):
         folder_name = folder['name']
         folder_path = folder['path']
         print(f'Processing folder {idx}/{total_folders}: {folder_name}, Path: {folder_path}')
-        filelist = glob(os.path.join(folder_path, '*'), recursive=True)
+        filelist = glob(os.path.join(folder_path, '*'), recursive=False)
         # filelist = natsorted([
         #     f for f in filelist
         #     if os.path.isfile(f) and f.lower().endswith(('.png', '.jpg',

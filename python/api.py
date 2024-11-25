@@ -26,7 +26,7 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
-
+# TODO: Simplify this code
 @app.post('/api/query/')
 async def query_mongodb(
     text: str | None = Form(None),

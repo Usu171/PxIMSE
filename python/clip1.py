@@ -19,6 +19,7 @@ class CLIP1():
             text_features = self.model.encode_text(text)
             return self.post_processing(text_features)
 
+    # FP16
     def post_processing(self, data):
         data = data / data.norm(dim=1, keepdim=True)
         data = data.detach().cpu().numpy()

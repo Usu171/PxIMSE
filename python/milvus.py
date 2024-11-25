@@ -17,7 +17,8 @@ if config['milvusdb-db'] not in db.list_database():
             is_primary=True,
             auto_id=False,
             max_length=24),
-        FieldSchema(name="clip", dtype=DataType.FLOAT16_VECTOR, dim=512)
+        FieldSchema(name="clip", dtype=DataType.FLOAT16_VECTOR, dim=512) # FP16
+        # ViT-B/32: 512, ViT-L/14: 768
     ]
     schema = CollectionSchema(fields, auto_id=False)
     collection = Collection(name=config['milvusdb-collection'], schema=schema)
