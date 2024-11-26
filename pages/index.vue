@@ -73,7 +73,6 @@
           v-for="(item, index) in pagedData"
           :key="index"
           cols="12"
-          xs="12"
           sm="6"
           md="4"
           lg="3"
@@ -87,23 +86,22 @@
             ></v-img>
             <div class="d-flex align-center">
               <div style="flex: 1; overflow: hidden">
-                <v-card-title>
+                <v-card-title class="py-0 pr-0">
                   {{ item.filename.split(".").slice(0, -1).join(".") }}
                 </v-card-title>
-                <v-card-subtitle v-if="item.image_distance">
+                <v-card-subtitle v-if="item.image_distance" class="pr-0">
                   {{ "image distance: " + item.image_distance.toFixed(8) }}
                 </v-card-subtitle>
-                <v-card-subtitle v-if="item.text_distance">
+                <v-card-subtitle v-if="item.text_distance" class="pr-0">
                   {{ "text distance: " + item.text_distance.toFixed(8) }}
                 </v-card-subtitle>
               </div>
               <v-btn
-                icon
+                icon="mdi-magnify"
+                variant="text"
                 @click.stop="submitImage(item)"
                 style="width: 50px; height: 50px"
-              >
-                <v-icon>mdi-magnify</v-icon>
-              </v-btn>
+              />
             </div>
           </v-card>
         </v-col>
@@ -138,13 +136,32 @@
                 {{ selectedItem.link }}
               </a>
             </span>
+            <span v-else-if="key === 'tags'">
+              <div
+                v-for="[tag, value] in Object.entries(selectedItem.tags)"
+                :key="tag"
+                style="
+                  display: flex;
+                  justify-content: flex-start;
+                  font-size: 15px;
+                "
+              >
+                <span
+                  class="mr-3"
+                  style="flex-basis: 150px; text-align: right"
+                  >{{ tag }}</span
+                >
+                <span>{{ value.toFixed(8) }}</span>
+              </div>
+            </span>
+            <span v-else-if="key === 'tags1'">
+              {{ selectedItem.tags1.join(", ") }}
+            </span>
             <span v-else style="font-size: 15px">{{ value }}</span>
           </v-card-text>
         </div>
         <v-card-actions>
-          <v-btn icon @click="dialog = false">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
+          <v-btn icon="mdi-close" @click="dialog = false" />
         </v-card-actions>
       </v-card>
     </v-dialog>
