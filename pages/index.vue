@@ -89,7 +89,7 @@
             ></v-img>
             <div class="d-flex align-center">
               <div style="flex: 1; overflow: hidden">
-                <v-card-title class="py-0 pr-0">
+                <v-card-title class="py-0 pr-0" style="font-size: 17px">
                   {{ item.filename.split(".").slice(0, -1).join(".") }}
                 </v-card-title>
                 <v-card-subtitle v-if="item.image_distance" class="pr-0">

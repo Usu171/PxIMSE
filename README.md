@@ -2,7 +2,7 @@
 
 Local anime style image search based on [DeepDanbooru](https://github.com/KichangKim/DeepDanbooru), [CLIP](https://github.com/openai/CLIP) and [PaddleOCR](https://paddlepaddle.github.io/PaddleOCR/main/index.html)
 
-![demo](assets/1.jpg)
+![demo](assets/1.png)
 
 
 ### Supported file name formats
