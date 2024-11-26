@@ -1,5 +1,8 @@
 <template>
   <v-container>
+    <v-btn @click="toggleTheme"  style="position: fixed; top: 10px; right: 10px; z-index: 1;"
+    variant="text"
+    :icon="cTheme === 'light' ? 'mdi-weather-sunny' :'mdi-weather-night'" />
     <v-row>
       <v-col cols="12" sm="6">
         <v-text-field
@@ -186,6 +189,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { useTheme } from "vuetify";
 import config from "../config.mjs";
 
 const data = ref([]);
@@ -198,6 +202,25 @@ const selectedItem = ref(null);
 const dialog = ref(false);
 const serverUrl = config.serverUrl;
 const apiUrl = config.apiUrl;
+
+const theme = useTheme();
+const cTheme = computed(() => theme.global.name.value)
+
+let prefersDarkScheme;
+onMounted(() => {
+  prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+  theme.global.name.value = prefersDarkScheme.matches ? "dark" : "light";
+
+  prefersDarkScheme.addEventListener("change", (event) => {
+    theme.global.name.value = event.matches ? "dark" : "light";
+  });
+});
+
+const toggleTheme = () => {
+  theme.global.name.value = theme.global.name.value === "dark"
+   ? "light"
+    : "dark";
+  }
 
 const snackbar = ref({
   show: false,
