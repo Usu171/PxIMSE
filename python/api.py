@@ -9,6 +9,7 @@ import utils
 import milvus
 import time
 import clip1
+from bson import ObjectId
 
 
 config = utils.get_config()
@@ -26,7 +27,7 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
-# TODO: Simplify this code
+
 @app.post('/api/query/')
 async def query_mongodb(
     text: str | None = Form(None),
@@ -76,9 +77,13 @@ async def query_mongodb(
 
 
     if common_ids := set(set(ids) & set(text_ids)) if ids and text_ids else set(set(ids) | set(text_ids)):
+        print('common_ids', len(common_ids))
         distance_map = {result["id"]: result["distance"] for result in milvus_results if result["id"] in common_ids}
         text_distance_map = {result["id"]: result["distance"] for result in milvus_text_results if result["id"] in common_ids}
 
+    if common_ids:
+        object_ids = {ObjectId(id_str) for id_str in common_ids}
+        mongo_query['_id'] = {'$in': list(object_ids)}
     start_mongodb_time = time.time()
     if mongo_sort:
         documents = list(mongodb.find(mongo_query).sort(mongo_sort).limit(10000))
