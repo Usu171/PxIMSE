@@ -17,7 +17,7 @@
         ></v-file-input>
       </v-col>
 
-      <v-col cols="6" sm="5">
+      <v-col cols="12" sm="5">
         <v-combobox
           v-model="queryText"
           label="Query"
@@ -29,7 +29,7 @@
           variant="outlined"
         ></v-combobox>
       </v-col>
-      <v-col cols="6" sm="5">
+      <v-col cols="12" sm="5">
         <v-combobox
           v-model="sortText"
           :items="[
@@ -69,22 +69,42 @@
       transition="fade-transition"
     >
       <v-row>
-        <v-col v-for="(item, index) in pagedData" :key="index" cols="12" sm="3">
+        <v-col
+          v-for="(item, index) in pagedData"
+          :key="index"
+          cols="12"
+          xs="12"
+          sm="6"
+          md="4"
+          lg="3"
+          xxl="2"
+        >
           <v-card @click="openDialog(item)">
             <v-img
               :src="`${serverUrl}/${item.folder}/${item.filename}`"
               :alt="item.filename"
               height="250px"
             ></v-img>
-            <v-card-title class="text-center">{{
-              item.filename.split(".").slice(0, -1).join(".")
-            }}</v-card-title>
-            <v-card-subtitle v-if="item.image_distance">{{
-              "image distance: " + item.image_distance.toFixed(8)
-            }}</v-card-subtitle>
-            <v-card-subtitle v-if="item.text_distance">{{
-              "text distance: " + item.text_distance.toFixed(8)
-            }}</v-card-subtitle>
+            <div class="d-flex align-center">
+              <div style="flex: 1; overflow: hidden">
+                <v-card-title>
+                  {{ item.filename.split(".").slice(0, -1).join(".") }}
+                </v-card-title>
+                <v-card-subtitle v-if="item.image_distance">
+                  {{ "image distance: " + item.image_distance.toFixed(8) }}
+                </v-card-subtitle>
+                <v-card-subtitle v-if="item.text_distance">
+                  {{ "text distance: " + item.text_distance.toFixed(8) }}
+                </v-card-subtitle>
+              </div>
+              <v-btn
+                icon
+                @click.stop="submitImage(item)"
+                style="width: 50px; height: 50px"
+              >
+                <v-icon>mdi-magnify</v-icon>
+              </v-btn>
+            </div>
           </v-card>
         </v-col>
       </v-row>
@@ -122,7 +142,9 @@
           </v-card-text>
         </div>
         <v-card-actions>
-          <v-btn @click="dialog = false">Close</v-btn>
+          <v-btn icon @click="dialog = false">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -142,7 +164,6 @@
         </v-btn>
       </template>
     </v-snackbar>
-
   </v-container>
 </template>
 
@@ -155,6 +176,7 @@ const inputText = ref(null);
 const queryText = ref(null);
 const sortText = ref(null);
 const imageFile = ref(null);
+const imageUrl = ref(null);
 const selectedItem = ref(null);
 const dialog = ref(false);
 const serverUrl = config.serverUrl;
@@ -167,7 +189,7 @@ const snackbar = ref({
 });
 
 const currentPage = ref(1);
-const itemsPerPage = ref(200);
+const itemsPerPage = ref(120);
 
 const pageCount = computed(() => {
   return Math.ceil(data.value.length / itemsPerPage.value);
@@ -184,7 +206,9 @@ const submitData = async () => {
   formData.append("text", inputText.value);
   formData.append("query", queryText.value);
   formData.append("sort", sortText.value);
-  if (imageFile.value) {
+  if (imageUrl.value) {
+    formData.append("image", imageUrl.value);
+  } else if (imageFile.value) {
     formData.append("image", imageFile.value);
   }
   try {
@@ -203,6 +227,13 @@ const submitData = async () => {
     snackbar.value.color = "error";
     snackbar.value.show = true;
   }
+};
+
+const submitImage = async (item) => {
+  imageUrl.value = `${serverUrl}/${item.folder}/${item.filename}`;
+  submitData();
+  imageUrl.value = null;
+  scrollToTop();
 };
 
 const openDialog = (item) => {
