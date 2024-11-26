@@ -2,7 +2,7 @@
   <v-container>
     <v-btn @click="toggleTheme"  style="position: fixed; top: 10px; right: 10px; z-index: 1;"
     variant="text"
-    :icon="cTheme === 'light' ? 'mdi-weather-sunny' :'mdi-weather-night'" />
+    :icon="currentTheme === 'light' ? 'mdi-weather-sunny' :'mdi-weather-night'" />
     <v-row>
       <v-col cols="12" sm="6">
         <v-text-field
@@ -204,9 +204,10 @@ const serverUrl = config.serverUrl;
 const apiUrl = config.apiUrl;
 
 const theme = useTheme();
-const cTheme = computed(() => theme.global.name.value)
+const currentTheme = computed(() => theme.global.name.value)
 
 let prefersDarkScheme;
+
 onMounted(() => {
   prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
   theme.global.name.value = prefersDarkScheme.matches ? "dark" : "light";
@@ -214,7 +215,20 @@ onMounted(() => {
   prefersDarkScheme.addEventListener("change", (event) => {
     theme.global.name.value = event.matches ? "dark" : "light";
   });
+  window.addEventListener('paste', handlePaste);
 });
+
+const handlePaste = (event) => {
+  const items = event.clipboardData.items;
+  Array.from(items).forEach(item => {
+    if (item.kind === 'file') {
+      const file = item.getAsFile();
+      if (file) {
+        imageFile.value = file;
+      }
+    }
+  });
+};
 
 const toggleTheme = () => {
   theme.global.name.value = theme.global.name.value === "dark"
