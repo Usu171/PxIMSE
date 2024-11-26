@@ -216,7 +216,7 @@ def import_pixiv(file, folder_name, mongodb):
 def update(mongodb):
     from pymongo import UpdateMany
     pipeline = [
-        {'$match': {'user': {'$ne': None}}},
+        {'$match': {'user': {'$ne': None}, 'userid': {'$ne': None}}},
         {'$group': {'_id': '$userid', 'user': {'$first': '$user'}}}
     ]
 
