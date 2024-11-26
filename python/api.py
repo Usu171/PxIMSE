@@ -19,8 +19,8 @@ mongodb = utils.get_db(config)[0]
 clip_ = clip1.CLIP1()
 milivus_ = milvus.Milvus1(config)
 
-milvus_limit = 12000
-mongodb_limit = 12000
+milvus_limit = 1200
+mongodb_limit = 1200
 
 
 app = FastAPI()
