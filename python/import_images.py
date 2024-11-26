@@ -186,6 +186,7 @@ def import_pixiv(file, folder_name, mongodb):
         {'illustid': illustid, 'title': {'$ne': None}}
     ):
         update_fields = {
+            'userid': matching_doc['userid'],
             'title': matching_doc['title'],
             'user': matching_doc['user'],
             'description': matching_doc['description'],
