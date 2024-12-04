@@ -147,7 +147,7 @@ def build_sort(params):
     query = defaultdict(dict)
     for param in params:
         if ';' in param:
-            key, value = param.split(':', 1)
+            key, value = param.split(';', 1)
             if value == '1':
                 query[key] = 1
             elif value == '-1':
