@@ -1,8 +1,13 @@
 <template>
   <v-container>
-    <v-btn @click="toggleTheme"  style="position: fixed; top: 10px; right: 10px; z-index: 1;"
-    variant="text"
-    :icon="currentTheme === 'light' ? 'mdi-weather-sunny' :'mdi-weather-night'" />
+    <v-btn
+      @click="toggleTheme"
+      style="position: fixed; top: 10px; right: 10px; z-index: 1"
+      variant="text"
+      :icon="
+        currentTheme === 'light' ? 'mdi-weather-sunny' : 'mdi-weather-night'
+      "
+    />
     <v-row>
       <v-col cols="12" sm="6">
         <v-text-field
@@ -125,29 +130,29 @@
 
         <v-card-title>{{ selectedItem?.filename }}</v-card-title>
         <div v-for="(value, key) in selectedItem" :key="key">
-          <v-card-text v-if="value" class="pa-1 pl-5">
+          <v-card-text v-if="value" class="pa-1 pl-5" style="font-size: 15px">
             <span class="font-weight-bold text-body-1 mr-1">
               {{ key.charAt(0).toUpperCase() + key.slice(1) }}:
             </span>
-            <span v-if="key === 'link'">
-              <a
-                v-if="selectedItem.link"
-                :href="selectedItem.link"
-                target="_blank"
-                style="color: #007bff; font-size: 15px"
-              >
-                {{ selectedItem.link }}
+            <span v-if="['link', 'userlink'].includes(key)">
+              <a :href="value" target="_blank" style="text-decoration: none">
+                {{ value }}
               </a>
+            </span>
+            <span v-else-if="['user', 'userid', 'illustid'].includes(key)">
+              {{ value }}
+              <v-btn
+                icon="mdi-magnify"
+                variant="text"
+                @click.stop="submitQuery(selectedItem, key)"
+                style="width: 25px; height: 25px"
+              />
             </span>
             <span v-else-if="key === 'tags'">
               <div
                 v-for="[tag, value] in Object.entries(selectedItem.tags)"
                 :key="tag"
-                style="
-                  display: flex;
-                  justify-content: flex-start;
-                  font-size: 15px;
-                "
+                style="display: flex; justify-content: flex-start"
               >
                 <span
                   class="mr-3"
@@ -160,6 +165,10 @@
             <span v-else-if="key === 'tags1'">
               {{ selectedItem.tags1.join(", ") }}
             </span>
+            <span
+              v-else-if="key === 'description'"
+              v-html="processedDescription"
+            ></span>
             <span v-else style="font-size: 15px">{{ value }}</span>
           </v-card-text>
         </div>
@@ -204,7 +213,7 @@ const serverUrl = config.serverUrl;
 const apiUrl = config.apiUrl;
 
 const theme = useTheme();
-const currentTheme = computed(() => theme.global.name.value)
+const currentTheme = computed(() => theme.global.name.value);
 
 let prefersDarkScheme;
 
@@ -215,13 +224,13 @@ onMounted(() => {
   prefersDarkScheme.addEventListener("change", (event) => {
     theme.global.name.value = event.matches ? "dark" : "light";
   });
-  window.addEventListener('paste', handlePaste);
+  window.addEventListener("paste", handlePaste);
 });
 
 const handlePaste = (event) => {
   const items = event.clipboardData.items;
-  Array.from(items).forEach(item => {
-    if (item.kind === 'file') {
+  Array.from(items).forEach((item) => {
+    if (item.kind === "file") {
       const file = item.getAsFile();
       if (file) {
         imageFile.value = file;
@@ -231,10 +240,9 @@ const handlePaste = (event) => {
 };
 
 const toggleTheme = () => {
-  theme.global.name.value = theme.global.name.value === "dark"
-   ? "light"
-    : "dark";
-  }
+  theme.global.name.value =
+    theme.global.name.value === "dark" ? "light" : "dark";
+};
 
 const snackbar = ref({
   show: false,
@@ -290,13 +298,27 @@ const submitImage = async (item) => {
   scrollToTop();
 };
 
+const sleep = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+const submitQuery = async (item, key) => {
+  queryText.value = `${key};="${item[key]}"`;
+  submitData();
+  dialog.value = false;
+  await sleep(500);
+  scrollToTop();
+};
+
 const openDialog = (item) => {
   selectedItem.value = item;
   dialog.value = true;
   if (item.type === "pixiv" || item.type === "pixiv1") {
     selectedItem.value.link = `https://www.pixiv.net/artworks/${item.illustid}`;
+    selectedItem.value.userlink = `https://www.pixiv.net/users/${item.userid}`;
   } else if (item.type === "twitter") {
     selectedItem.value.link = `https://twitter.com/${item.userid}/status/${item.illustid}`;
+    selectedItem.value.userlink = `https://twitter.com/${item.userid}`;
   } else if (item.type === "yandere") {
     selectedItem.value.link = `https://yande.re/post/show/${item.id}`;
   }
@@ -305,4 +327,14 @@ const openDialog = (item) => {
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
+
+const sanitizeHtml = (html) => {
+  return html.replace(/\/jump\.php\?([^"]+)/g, (_match, p) => {
+    return decodeURIComponent(p);
+  });
+};
+
+const processedDescription = computed(() => {
+  return sanitizeHtml(selectedItem.value.description);
+});
 </script>
