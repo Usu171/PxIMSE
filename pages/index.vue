@@ -202,9 +202,9 @@ import { useTheme } from "vuetify";
 import config from "../config.mjs";
 
 const data = ref([]);
-const inputText = ref(null);
-const queryText = ref(null);
-const sortText = ref(null);
+const inputText = ref("");
+const queryText = ref([]);
+const sortText = ref([]);
 const imageFile = ref(null);
 const imageUrl = ref(null);
 const selectedItem = ref(null);
@@ -303,7 +303,7 @@ const sleep = (ms) => {
 };
 
 const submitQuery = async (item, key) => {
-  queryText.value = `${key};="${item[key]}"`;
+  queryText.value.push(`${key};="${item[key]}"`);
   submitData();
   dialog.value = false;
   await sleep(500);
