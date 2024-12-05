@@ -56,6 +56,21 @@
             'bookmarkCount',
             'likeCount',
             'commentCount',
+            'filename;1',
+            'folder;1',
+            'type;1',
+            'width;1',
+            'height;1',
+            'filesize;1',
+            'date;1',
+            'user;1',
+            'userid;1',
+            'illustid;1',
+            'createDate;1',
+            'viewCount;1',
+            'bookmarkCount;1',
+            'likeCount;1',
+            'commentCount;1',
           ]"
           label="Sort"
           dense
