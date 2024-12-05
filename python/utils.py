@@ -93,7 +93,7 @@ operator_mapping = {
 
 
 def split_condition(condition):
-    pattern = r'([<>!=]=?)\s*(\S+)'
+    pattern = r'([<>!=]=?)\s*(.+)'
     if match := re.match(pattern, condition):
         operator = match.group(1)
         value = match.group(2)
