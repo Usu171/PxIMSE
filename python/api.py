@@ -129,10 +129,7 @@ async def query_mongodb(
         distance_map = {result["id"]: result["distance"] for result in milvus_results if result["id"] in common_ids}
         text_distance_map = {result["id"]: result["distance"] for result in milvus_text_results if result["id"] in common_ids}
     elif ids or text_ids:
-        return JSONResponse(
-            status_code=400,
-            content={'error': 'No document found'},
-        )
+        return []
 
     if meili_query:
         meili_results = meili_.search(meili_query, limit=meili_limit)
@@ -140,10 +137,7 @@ async def query_mongodb(
         print('meili_ids', len(meili_ids))
         common_ids = set(common_ids) & set(meili_ids) if common_ids else set(meili_ids)
         if not common_ids:
-            return JSONResponse(
-                status_code=400,
-                content={'error': 'No document found'},
-            )
+            return []
         print('common_ids', len(common_ids))
 
     if common_ids:
