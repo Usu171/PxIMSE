@@ -95,6 +95,18 @@ services:
     depends_on:
       - "standalone"
 
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: meilisearch
+    ports:
+      - "7700:7700"
+    environment:
+      - MEILI_ENV=development
+      - MEILI_MASTER_KEY=1145141919810364364
+    volumes:
+      - ./meili_data:/meili_data
+
   # nginx:
   #   image: nginx:latest
   #   container_name: nginx

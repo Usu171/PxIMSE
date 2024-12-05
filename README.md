@@ -25,6 +25,7 @@ Images from [Pixiv](https://www.pixiv.net/), [PixivBatchDownloader](https://gith
 
 - [MongoDB](https://www.mongodb.com/)
 - [Milvus](https://milvus.io/)
+- [meilisearch](https://www.meilisearch.com/) (optional)
 
 Refer to `docker-compose.yml`
 
@@ -71,6 +72,11 @@ Attempt to assign the username from an existing document in the database to a do
 python import_images.py update
 ```
 
+Import text to meilisearch (optional)
+```sh
+python import_images.py meili
+```
+
 ### 2. Start Service
 
 
@@ -87,11 +93,18 @@ pnpm dev
 
 **Exists:**  
 tags.xxx  
-tags1:xxx
+tags1:xxx (AND)  
+|tags1:xxx (OR)
 
 **Does not exist:**  
 !tags.xxx  
 !tags1:xxx
+
+**Text length:**  
+textlen;>xx
+
+**Text content (meilisearch):**  
+m;xxx
 
 **Greater than, less than, equal to, not equal to:**  
 filesize;>1000000  
@@ -100,12 +113,14 @@ date;>2000-01-01&<2010-01-01
 likeCount;=100  
 viewCount;!=200
 
-**Text length:**  
-textlen;>xx
-
 
 tags are obtained from DeepDanbooru  
-tags1 are retrieved from Pixiv website (For yandere, from the file name)
+tags1 are retrieved from Pixiv website (for yandere, from the file name)
+
+### Format of Sort
+
+Ascending order： `filesize;1`  
+Descending order: `filesize` or `filesize;-1`
 
 
 ## Credits
