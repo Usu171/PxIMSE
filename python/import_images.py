@@ -236,6 +236,15 @@ def update(mongodb):
         print('Update Successful')
 
 
+def import_meilisearch(mongodb, meili_):
+    documents = []
+    for doc in mongodb[0].find({}, {"_id": 1, "text": 1}):
+
+        doc["_id"] = str(doc["_id"])
+        documents.append(doc)
+    meili_.update_documents(documents, '_id')
+    print('Import successful')
+
 operation_functions = {
     'mongo': import_mongo,
     'milvus': import_milvus,
@@ -267,6 +276,10 @@ def main():
             import_imgs(config, 'pixiv', mongodb)
         case 'update':
             update(mongodb)
+        case 'meili':
+            import meili
+            meili_ = meili.Meili(config)
+            import_meilisearch(mongodb, meili_)
         case _:
             print('Invalid operation specified.')
 

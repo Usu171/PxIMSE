@@ -10,7 +10,8 @@ from collections import defaultdict
 
 @lru_cache(maxsize=1)
 def get_config():
-    with open('config.yml', 'r') as file:
+    config_file = os.getenv('PxCONFIG_FILE', 'config.yml')
+    with open(config_file, 'r') as file:
         config = yaml.safe_load(file)
     return config
 
@@ -115,6 +116,7 @@ def convert_value(key, val):
 
 def build_query(params):
     query = defaultdict(dict)
+    meili_query = ""
     for param in params:
         if ';' in param:
             key, value = param.split(';', 1)
@@ -124,6 +126,9 @@ def build_query(params):
                     query['text'] = {'$ne': None}
                     query['$expr'][operator_mapping[op]] = [{'$strLenCP': '$text'}, int(val)]
                     break
+                elif key == 'm':
+                    meili_query += f' {param1}'
+                    break
                 val = convert_value(key, val)
                 if op in operator_mapping:
                     query[key][operator_mapping[op]] = val
@@ -132,6 +137,9 @@ def build_query(params):
         elif param.startswith('tags1'):
             key, value = param.split(':', 1)
             query.setdefault('tags1', {}).setdefault('$all', []).append(value.strip())
+        elif param.startswith('|tags1'):
+            key, value = param.split(':', 1)
+            query.setdefault('tags1', {}).setdefault('$in', []).append(value.strip())
         elif param.startswith('!tags1'):
             key, value = param.split(':', 1)
             query.setdefault('tags1', {}).setdefault('$nin', []).append(value.strip())
@@ -140,7 +148,7 @@ def build_query(params):
         else:
             query[param] = {'$exists': True}
     
-    return dict(query)
+    return dict(query), meili_query
 
 
 def build_sort(params):

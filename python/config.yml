@@ -12,6 +12,11 @@ milvusdb-port: 19530
 milvusdb-db: test
 milvusdb-collection: imgs
 
+meilisearch-host: 'localhost'
+meilisearch-port: 7700
+meilisearch-master-key: '1145141919810364364'
+meilisearch-index: imgs
+
 # Needs to be consistent with Nginx configuration
 folders:
   - name: test
