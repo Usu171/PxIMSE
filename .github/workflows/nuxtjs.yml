@@ -1,0 +1,40 @@
+name: Nuxt.js generate
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - uses: pnpm/action-setup@v4
+      name: Install pnpm
+    # Set up Node.js environment
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: |
+        pnpm install
+
+    # Generate Static Site
+    - name: Generate Static Site
+      run: pnpm generate
+
+
+    - name: Upload static site archive
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuxt-static-site
+        path: dist
