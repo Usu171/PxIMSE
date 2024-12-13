@@ -212,7 +212,6 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
 import { useTheme } from "vuetify";
 import config from "../config.mjs";
 
