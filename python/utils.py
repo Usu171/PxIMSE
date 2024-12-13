@@ -5,7 +5,17 @@ import pymongo
 from datetime import datetime
 import regex as re
 import os
+from pathlib import Path
 from collections import defaultdict
+
+
+nonedict = {
+                'user': None,
+                'userid': None,
+                'date': None,
+                'illustid': None,
+                'tags1': None,
+            }
 
 
 @lru_cache(maxsize=1)
@@ -28,7 +38,7 @@ def get_db(config):
 
 
 def get_file_type(filename: str) -> str:
-    filename = os.path.splitext(filename)[0]
+    filename = Path(filename).stem
     if re.fullmatch(r'\d+_\d+_p\d+', filename):
         return 'pixiv'
     elif re.fullmatch(r'\d+_p\d+', filename):
@@ -46,13 +56,7 @@ def extract_match(pattern: str, filename: str) -> dict:
 
 
 def get_filename_info(filename: str, filetype: str) -> dict:
-    nonedict = {
-                    'user': None,
-                    'userid': None,
-                    'date': None,
-                    'illustid': None,
-                    'tags1': None,
-                }
+    filename = Path(filename).stem
     match_dict = nonedict.copy()
     match filetype:
         case 'pixiv':
@@ -116,7 +120,8 @@ def convert_value(key, val):
 
 def build_query(params):
     query = defaultdict(dict)
-    meili_query = ""
+    meili_query = ''
+    meili_tags1_query = ''
     for param in params:
         if ';' in param:
             key, value = param.split(';', 1)
@@ -128,6 +133,9 @@ def build_query(params):
                     break
                 elif key == 'm':
                     meili_query += f' {param1}'
+                    break
+                elif key == 'mt':
+                    meili_tags1_query += f' {param1}'
                     break
                 val = convert_value(key, val)
                 if op in operator_mapping:
@@ -148,7 +156,7 @@ def build_query(params):
         else:
             query[param] = {'$exists': True}
     
-    return dict(query), meili_query
+    return dict(query), meili_query, meili_tags1_query
 
 
 def build_sort(params):

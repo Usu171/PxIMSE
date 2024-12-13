@@ -21,9 +21,13 @@ meilisearch-index: imgs
 folders:
   - name: test
     path: /xxx/test
+    recursive: true
   - name: test2
     path: /xxx/test2
+    recursive: false
 
 
 deepdanbooru-model-path: /xxx/model-resnet_custom_v3.h5
 deepdanbooru-tags-path: /xxx/tags.txt
+
+max_threads: 4

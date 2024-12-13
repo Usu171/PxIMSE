@@ -44,13 +44,21 @@ PngImagePlugin.MAX_TEXT_CHUNK = 2**22
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
+def get_path(file, folder_path, folder_name):
+    rel_path = os.path.relpath(os.path.dirname(file), folder_path)
+    return os.path.join(folder_name, rel_path) if rel_path != '.' else folder_name
+
+
 def import_imgs(config, operation, mongodb, *args):
     total_folders = len(config['folders'])
     for idx, folder in enumerate(config['folders'], start=1):
         folder_name = folder['name']
         folder_path = folder['path']
         print(f'Processing folder {idx}/{total_folders}: {folder_name}, Path: {folder_path}')
-        filelist = glob(os.path.join(folder_path, '*'), recursive=False)
+        if folder['recursive']:
+            filelist = glob(os.path.join(folder_path, '**/*'), recursive=True)
+        else:
+            filelist = glob(os.path.join(folder_path, '*'), recursive=False)
         # filelist = natsorted([
         #     f for f in filelist
         #     if os.path.isfile(f) and f.lower().endswith(('.png', '.jpg',
@@ -62,15 +70,22 @@ def import_imgs(config, operation, mongodb, *args):
             key=os.path.getmtime,
             reverse=True
         )
-        max_threads = 4
+        max_threads = config['max_threads']
         with tqdm(total=len(filelist)) as pbar:
             with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
                 futures = [
-                    executor.submit(import_function, operation, file, folder_name, mongodb, pbar, *args)
+                    executor.submit(import_function, operation, file,
+                                    get_path(file, folder_path, folder_name),
+                                    mongodb, pbar, *args)
                     for file in filelist
                 ]
                 for future in concurrent.futures.as_completed(futures):
                     future.result()
+        # with tqdm(total=len(filelist)) as pbar:
+        #     for file in filelist:
+        #         import_function(operation, file,
+        #                         get_path(file, folder_path, folder_name),
+        #                         mongodb, pbar, *args)
 
 
 def import_function(operation, file, folder_name, mongodb, pbar, *args):
@@ -121,7 +136,7 @@ def import_mongo(file, folder_name, mongodb, ocr_, dd_):
         'date': m_datetime,
         'tags': tags,
         'text': ocr_text
-}
+    }
 
     document = {**nonedoc, **filename_info, **file_info}
 
@@ -238,12 +253,19 @@ def update(mongodb):
 
 def import_meilisearch(mongodb, meili_):
     documents = []
-    for doc in mongodb[0].find({}, {"_id": 1, "text": 1}):
+    for doc in mongodb[0].find({}, {'_id': 1, 'text': 1, 'tags1': 1}):
 
-        doc["_id"] = str(doc["_id"])
+        doc['_id'] = str(doc['_id'])
         documents.append(doc)
-    meili_.update_documents(documents, '_id')
-    print('Import successful')
+
+    print('Importing to MeiliSearch')
+    batch_size = 100000
+    for i in range(0, len(documents), batch_size):
+        batch = documents[i:i + batch_size]
+        meili_.update_documents(batch, '_id')
+        print(f'Importing batch {i // batch_size + 1} successful')
+    print('All imports successful')
+
 
 operation_functions = {
     'mongo': import_mongo,

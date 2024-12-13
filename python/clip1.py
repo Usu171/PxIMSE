@@ -4,8 +4,8 @@ import clip
 
 class CLIP1():
     def __init__(self):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.model, self.preprocess = clip.load("ViT-B/32", device=self.device)
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.model, self.preprocess = clip.load('ViT-B/32', device=self.device)
         
     def get_clip_result(self, image):
         image = self.preprocess(image).unsqueeze(0).to(self.device)

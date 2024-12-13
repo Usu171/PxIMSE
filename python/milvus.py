@@ -12,30 +12,30 @@ if config['milvusdb-db'] not in db.list_database():
     db.using_database(config['milvusdb-db'])
     fields = [
         FieldSchema(
-            name="id",
+            name='id',
             dtype=DataType.VARCHAR,
             is_primary=True,
             auto_id=False,
             max_length=24),
-        FieldSchema(name="clip", dtype=DataType.FLOAT16_VECTOR, dim=512) # FP16
+        FieldSchema(name='clip', dtype=DataType.FLOAT16_VECTOR, dim=512) # FP16
         # ViT-B/32: 512, ViT-L/14: 768
     ]
     schema = CollectionSchema(fields, auto_id=False)
     collection = Collection(name=config['milvusdb-collection'], schema=schema)
     collection = Collection('imgs')
 
-    collection.create_index(field_name="id", index_name="id1")
+    collection.create_index(field_name='id', index_name='id1')
     index_params = {
-        "index_type": "HNSW",
-        "metric_type": "IP",  # COSINE, L2, IP
-        "params": {
-            "M": 32,
-            "efConstruction": 64
+        'index_type': 'HNSW',
+        'metric_type': 'IP',  # COSINE, L2, IP
+        'params': {
+            'M': 32,
+            'efConstruction': 64
         }
     }
 
     collection.create_index(
-        field_name="clip", index_params=index_params, index_name="clip1")
+        field_name='clip', index_params=index_params, index_name='clip1')
 
 
 class Milvus1():

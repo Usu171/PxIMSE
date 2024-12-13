@@ -106,6 +106,9 @@ textlen;>xx
 **Text content (meilisearch):**  
 m;xxx
 
+**tags1 (meilisearch):**  
+mt;xxx
+
 **Greater than, less than, equal to, not equal to:**  
 filesize;>1000000  
 tags.xxx;<=0.9  

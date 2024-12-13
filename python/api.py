@@ -48,7 +48,7 @@ async def process_img(image_data: bytes):
     milvus_results = milivus_.search(image_features, milvus_limit)
     end_milvus_time = time.time()
     print(f'milvus search time: {end_milvus_time - start_milvus_time}s')
-    ids = [result["id"] for result in milvus_results]
+    ids = [result['id'] for result in milvus_results]
     return ids, milvus_results
 
 
@@ -89,11 +89,12 @@ async def query_mongodb(
     print('sort', sort)
     print('image', type(image))
     start_time = time.time()
-    mongo_query, meili_query = utils.build_query([item.strip() for item in query.split(',')]) if query and query != 'null' else ({}, "")
+    mongo_query, meili_query, meili_tags1_query = utils.build_query([item.strip() for item in query.split(',')]) if query and query != 'null' else ({}, '', '')
     mongo_sort = utils.build_sort([item.strip() for item in sort.split(',')]) if sort and sort != 'null' else {}
     print('mongo_query', mongo_query)
     print('mongo_sort', mongo_sort)
     print('meili_query', meili_query)
+    print('meili_tags1_query', meili_tags1_query)
     ids = text_ids = meili_ids = []
     milvus_results = milvus_text_results = []
     distance_map = text_distance_map = {}
@@ -121,21 +122,30 @@ async def query_mongodb(
     if text and text != 'null':
         text_features = clip_.get_clip_text_result(text)
         milvus_text_results = milivus_.search(text_features, milvus_limit)
-        text_ids = [result["id"] for result in milvus_text_results]
+        text_ids = [result['id'] for result in milvus_text_results]
 
 
     if common_ids := set(ids) & set(text_ids) if ids and text_ids else set(ids) | set(text_ids):
         print('common_ids', len(common_ids))
-        distance_map = {result["id"]: result["distance"] for result in milvus_results if result["id"] in common_ids}
-        text_distance_map = {result["id"]: result["distance"] for result in milvus_text_results if result["id"] in common_ids}
+        distance_map = {result['id']: result['distance'] for result in milvus_results if result['id'] in common_ids}
+        text_distance_map = {result['id']: result['distance'] for result in milvus_text_results if result['id'] in common_ids}
     elif ids or text_ids:
         return []
 
     if meili_query:
-        meili_results = meili_.search(meili_query, limit=meili_limit)
+        meili_results = meili_.search(meili_query, limit=meili_limit, attributesToSearchOn=['text'])
         meili_ids = [result['_id'] for result in meili_results['hits']]
         print('meili_ids', len(meili_ids))
         common_ids = set(common_ids) & set(meili_ids) if common_ids else set(meili_ids)
+        if not common_ids:
+            return []
+        print('common_ids', len(common_ids))
+
+    if meili_tags1_query:
+        meili_tags1_results = meili_.search(meili_tags1_query, limit=meili_limit, attributesToSearchOn=['tags1'])
+        meili_tags1_ids = [result['_id'] for result in meili_tags1_results['hits']]
+        print('meili_tags1_ids', len(meili_tags1_ids))
+        common_ids = set(common_ids) & set(meili_tags1_ids) if common_ids else set(meili_tags1_ids)
         if not common_ids:
             return []
         print('common_ids', len(common_ids))
